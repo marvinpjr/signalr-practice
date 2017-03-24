@@ -1,0 +1,78 @@
+﻿<script src="/signalr/hubs" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+        // Proxy created on the fly
+        var chat = $.connection.chat;
+        chat.name = "@User.Identity.Name";
+
+        // Declare a function on the chat hub so the server can invoke it
+        chat.addMessage = function (message) {
+            $('#messages').append('<li>' + message + '</li>');
+        };
+        chat.addMessageFromName = function(name, message){
+            $("#messages").append('<li>' + name + ": " + message + '</li>');
+        }
+
+        $("#broadcast").click(function () {
+            // Call the chat method on the server
+            var groupToMsg = $("#groupToMessage").val();
+            chat.send($('#msg').val(), groupToMsg);
+        });
+
+        $("#joinbutt").click(function () {
+            var groupName = $("#groupToJoin").val();
+            chat.join(groupName, "Shea");
+        });
+
+        $("#ping").click(function () {
+            chat.pingBackToCaller();
+        });
+
+        $("#getname").click(function () {
+            var person = {
+                "Name": "Marvin",
+                "Age": 12
+            };
+            chat.echoPerson(person);
+            // var name = chat.extractName(person); // doesn't work, name will be an empty object
+            // $('#messages').append('<li>' + name + '</li>');
+        });
+
+        //$("#leavebutt").click(function () {
+        //    chat.disconnect(); // this doesn't work
+        //});
+
+        // Start the connection
+        $.connection.hub.start();
+    });
+</script>
+
+<hr />
+Pick a group to message: <br />
+  <select id="groupToMessage">
+      <option value="Everyone">Everyone</option>
+      <option value="Fee">Fee</option>
+      <option value="Fi">Fi</option>
+      <option value="Fo">Fo</option>
+      <option value="Fum">Fum</option>
+  </select>
+<br />
+  Message: <input type="text" id="msg" /><br />
+  <input type="button" id="broadcast" value="broadcast" />
+  <input type="button" id="ping" value="call" />
+  <input type="button" id="getname" value="get name" />
+
+<hr />
+    <br />
+Pick a group to join: <br />
+  <select id="groupToJoin">
+      <option value="Fee">Fee</option>
+      <option value="Fi">Fi</option>
+      <option value="Fo">Fo</option>
+      <option value="Fum">Fum</option>
+  </select>
+  <input type="button" id="joinbutt" value="join" />
+
+  <ul id="messages">
+  </ul>
+
